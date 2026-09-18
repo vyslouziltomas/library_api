@@ -1,0 +1,122 @@
+POST http://localhost:3000/members
+Content-Type: application/json
+
+{
+  "member": {
+    "name": "Petr",
+    "email": "petr@example.com",
+    "phone": "+420987654321"
+  }
+}
+
+###
+
+PATCH http://localhost:3000/members/2
+Content-Type: application/json
+
+{
+  "member": {
+    "phone": "+420123456789"
+  }
+}
+
+###
+
+DELETE http://localhost:3000/members/2
+
+###
+
+GET http://localhost:3000/members/2
+
+###
+
+POST http://localhost:3000/books
+Content-Type: application/json
+
+{
+  "book": {
+    "title": "Animal Farm",
+    "author": "George Orwell",
+    "year": 1945,
+    "isbn": "9780451526342"
+  }
+}
+
+###
+
+PATCH http://localhost:3000/books/1/borrow
+Content-Type: application/json
+
+{
+  "member_id": 1
+}
+
+###
+
+PATCH http://localhost:3000/books/1/return_book
+Content-Type: application/json
+
+###
+
+PATCH http://localhost:3000/books/1
+Content-Type: application/json
+
+{
+  "book": {
+    "title": "1984"
+  }
+}
+
+###
+
+DELETE http://localhost:3000/books/3
+
+###
+
+POST http://localhost:3000/members/import
+Content-Type: application/json
+
+{
+  "members": [
+    {
+      "name": "Jiří Kára",
+      "email": "kara@example.com",
+      "phone": "+420123434888"
+    },
+    {
+      "name": "Petr Svoboda",
+      "email": "petr@example.com",
+      "phone": "+420987654321"
+    }
+  ]
+}
+
+###
+
+POST http://localhost:3000/books/import
+Content-Type: application/json
+
+{
+  "books": [
+    {
+      "title": "1984",
+      "author": "George Orwell",
+      "year": 1949,
+      "isbn": "9780451524935"
+    },
+    {
+      "title": "Fahrenheit 451",
+      "author": "Ray Bradbury",
+      "year": 1953,
+      "isbn": "9781451678189"
+    }
+  ]
+}
+
+###
+
+GET http://localhost:3000/borrowings
+
+###
+
+GET http://localhost:3000/borrowings/export

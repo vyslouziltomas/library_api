@@ -1,0 +1,33 @@
+cs:
+  activerecord:
+    attributes:
+      book:
+        title: "Titul"
+        author: "Autor"
+        year: "Rok"
+        isbn: "ISBN"
+      member:
+        name: "Jméno"
+        email: "E-mail"
+        phone: "Telefon"
+
+    errors:
+      models:
+        book:
+          attributes:
+            title:
+              blank: "musí být vyplněn!"
+            author:
+              blank: "musí být vyplněn!"
+            year:
+              blank: "musí být vyplněn!"
+            isbn:
+              blank: "musí být vyplněno!"
+        member:
+          attributes:
+            name:
+              blank: "musí být vyplněno!"
+            email:
+              blank: "musí být vyplněn!"
+            phone:
+              blank: "musí být vyplněn!"

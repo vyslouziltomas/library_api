@@ -1,0 +1,528 @@
+<h1>Administrace</h1>
+
+<div class="admin-navigation">
+  <div>
+    <button data-section="books">Knihy</button>
+    <button data-section="members">Členové</button>
+    <button data-section="history">Historie</button>
+  </div>
+</div>
+
+<section id="books">
+  <h2>Knihy</h2>
+
+  <button id="show-book-form">Přidat knihu</button>
+  <button id="show-book-import">Import knih</button>
+
+  <div id="book-import" <%= "hidden" unless @show_book_import %>>
+    <h3>Import knih</h3>
+
+    <% if @import_errors %>
+      <ul>
+        <% @import_errors.each do |error| %>
+          <% error[:errors].each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        <% end %>
+      </ul>
+    <% end %>
+
+    <p>Nahrajte soubor ve formátu JSON.</p>
+
+    <p>Soubor musí mít následující podobu:</p>
+
+    <pre>
+      [
+        {
+          "title": "1984",
+          "author": "George Orwell",
+          "year": 1949,
+          "isbn": "9780451524935"
+        },
+        {
+          "title": "Farma zvířat",
+          "author": "George Orwell",
+          "year": 1945,
+          "isbn": "9780451524935"
+        }
+      ]
+    </pre>
+
+    <%= form_with url: "/admin/books/import", method: :post, multipart: true do %>
+      <%= file_field_tag :file, accept: ".json", hidden: true, id: "book-file" %>
+      <button type="button" id="choose-book-file">Zvolit soubor</button>
+    <% end %>
+  </div>
+
+  <div id="book-form" <%= "hidden" unless @book_form_errors %>>
+    <h3>Nová kniha</h3>
+
+    <% if @book_form_errors %>
+      <ul>
+        <% @book_form_errors.each do |error| %>
+          <li><%= error %></li>
+        <% end %>
+      </ul>
+    <% end %>
+
+    <%= form_with url: "/admin/books", method: :post do %>
+      <div>
+        <%= label_tag :title, "Titul" %>
+        <%= text_field_tag :title, @new_book&.title %>
+      </div>
+
+      <div>
+        <%= label_tag :author, "Autor" %>
+        <%= text_field_tag :author, @new_book&.author %>
+      </div>
+
+      <div>
+        <%= label_tag :year, "Rok" %>
+        <%= number_field_tag :year, @new_book&.year %>
+      </div>
+
+      <div>
+        <%= label_tag :isbn, "ISBN" %>
+        <%= text_field_tag :isbn, @new_book&.isbn %>
+      </div>
+
+      <%= submit_tag "Potvrdit" %>
+    <% end %>
+  </div>
+
+  <h3 class="h3_margin">Seznam knih</h3>
+
+  <% @books.each do |book| %>
+    <%= form_with url: "/admin/books/#{book.id}",
+        method: :patch,
+        id: "edit-book-form-#{book.id}" do %>
+    <% end %>
+  <% end %>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Titul</th>
+        <th>Autor</th>
+        <th>Rok</th>
+        <th>ISBN</th>
+        <th>Stav</th>
+        <th>Upravit</th>
+        <th>Smazat</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <% @books.each do |book| %>
+        <tr>
+          <td>
+            <%= book.title %>
+          </td>
+
+          <td>
+            <%= book.author %>
+          </td>
+
+          <td>
+            <%= book.year %>
+          </td>
+
+          <td>
+            <%= book.isbn %>
+          </td>
+
+          <td>
+            <% if book.member_id.present? %>
+              Vypůjčená
+            <% else %>
+              Dostupná
+            <% end %>
+          </td>
+
+          <td>
+            <button
+              data-action="edit-book"
+              data-book-id="<%= book.id %>">
+              Upravit
+            </button>
+          </td>
+
+          <td>
+            <% unless book.member_id.present? %>
+              <%= button_to "Smazat",
+                  "/admin/books/#{book.id}",
+                  method: :delete,
+                  onclick: "return confirm('Opravdu chcete smazat tuto knihu?')" %>
+            <% else %>
+              Nelze
+            <% end %>
+          </td>
+        </tr>
+
+        <tr id="edit-book-<%= book.id %>"
+            <%= "hidden" unless @edit_book_id == book.id %>>
+
+          <td>
+            <%= text_field_tag :title,
+                book.title,
+                id: "title-#{book.id}",
+                form: "edit-book-form-#{book.id}" %>
+          </td>
+
+          <td>
+            <%= text_field_tag :author,
+                book.author,
+                id: "author-#{book.id}",
+                form: "edit-book-form-#{book.id}" %>
+          </td>
+
+          <td>
+            <%= number_field_tag :year,
+                book.year,
+                id: "year-#{book.id}",
+                form: "edit-book-form-#{book.id}" %>
+          </td>
+
+          <td>
+            <%= text_field_tag :isbn,
+                book.isbn,
+                id: "isbn-#{book.id}",
+                form: "edit-book-form-#{book.id}" %>
+          </td>
+
+          <td colspan="3">
+            <% if @edit_book_id == book.id && @edit_book_errors %>
+              <ul>
+                <% @edit_book_errors.each do |error| %>
+                  <li>
+                    <%= error %>
+                  </li>
+                <% end %>
+              </ul>
+            <% end %>
+
+            <%= submit_tag "Potvrdit změny",
+                form: "edit-book-form-#{book.id}" %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</section>
+
+<section id="members" hidden>
+  <h2>Členové</h2>
+
+  <button id="show-member-form">Přidat člena</button>
+
+  <div id="member-form" <%= "hidden" unless @member_form_errors %>>
+    <h3>Nový člen</h3>
+
+    <% if @member_form_errors %>
+      <ul>
+        <% @member_form_errors.each do |error| %>
+          <li><%= error %></li>
+        <% end %>
+      </ul>
+    <% end %>
+
+    <%= form_with url: "/admin/members", method: :post do %>
+      <div>
+        <%= label_tag :name, "Jméno" %>
+        <%= text_field_tag :name, @new_member&.name %>
+      </div>
+
+      <div>
+        <%= label_tag :email, "E-mail" %>
+        <%= email_field_tag :email, @new_member&.email %>
+      </div>
+
+      <div>
+        <%= label_tag :phone, "Telefon" %>
+        <%= text_field_tag :phone, @new_member&.phone %>
+      </div>
+
+      <%= submit_tag "Potvrdit" %>
+    <% end %>
+  </div>
+
+  <h3 class="h3_margin">Seznam členů</h3>
+
+  <% @members.each do |member| %>
+    <%= form_with url: "/admin/members/#{member.id}",
+        method: :patch,
+        id: "edit-member-form-#{member.id}" do %>
+    <% end %>
+  <% end %>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Jméno</th>
+        <th>E-mail</th>
+        <th>Telefon</th>
+        <th>Upravit</th>
+        <th>Smazat</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <% @members.each do |member| %>
+        <tr>
+          <td>
+            <%= member.name %>
+          </td>
+
+          <td>
+            <%= member.email %>
+          </td>
+
+          <td>
+            <%= member.phone %>
+          </td>
+
+          <td>
+            <button
+              data-action="edit-member"
+              data-member-id="<%= member.id %>">
+              Upravit
+            </button>
+          </td>
+
+          <td>
+            <% if member.books.exists? %>
+              Nelze (má vypůjčenou knihu)
+            <% else %>
+              <%= button_to "Smazat",
+                  "/admin/members/#{member.id}",
+                  method: :delete,
+                  onclick: "return confirm('Opravdu chcete smazat tohoto člena?')" %>
+            <% end %>
+          </td>
+        </tr>
+
+        <tr id="edit-member-<%= member.id %>"
+            <%= "hidden" unless @edit_member_id == member.id %>>
+
+          <td>
+            <%= text_field_tag :name,
+                member.name,
+                id: "name-#{member.id}",
+                form: "edit-member-form-#{member.id}" %>
+          </td>
+
+          <td>
+            <%= email_field_tag :email,
+                member.email,
+                id: "email-#{member.id}",
+                form: "edit-member-form-#{member.id}" %>
+          </td>
+
+          <td>
+            <%= text_field_tag :phone,
+                member.phone,
+                id: "phone-#{member.id}",
+                form: "edit-member-form-#{member.id}" %>
+          </td>
+
+          <td colspan="2">
+            <% if @edit_member_id == member.id && @edit_member_errors %>
+              <ul>
+                <% @edit_member_errors.each do |error| %>
+                  <li>
+                    <%= error %>
+                  </li>
+                <% end %>
+              </ul>
+            <% end %>
+
+            <%= submit_tag "Potvrdit změny",
+                form: "edit-member-form-#{member.id}" %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</section>
+
+<section id="history" hidden>
+  <h2>Historie</h2>
+
+  <div class="history-button-container">
+    <%= link_to "Exportovat CSV", "/history/export", class: "history-button" %>
+
+    <%= button_to "Smazat historii",
+        "/admin/history",
+        method: :delete,
+        onclick: "return confirm('Opravdu chcete smazat celou historii?')",
+        class: "history-button" %>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Kniha</th>
+        <th>Člen</th>
+        <th>Akce</th>
+        <th>Datum</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <% @history.each do |borrowing| %>
+        <tr>
+          <td>
+            <%= borrowing[:book_title] %>
+          </td>
+          <td>
+            <%= borrowing[:member_name] %>
+          </td>
+          <td>
+            <%= borrowing[:action] %>
+          </td>
+          <td>
+            <%= borrowing[:created_at] %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</section>
+
+<script>
+  const buttons = document.querySelectorAll("[data-section]");
+  const sections = document.querySelectorAll("section");
+
+  const activeSection =
+  "<%= @active_section %>" ||
+  new URLSearchParams(window.location.search).get("section") ||
+  "books";
+
+  sections.forEach((section) => {
+    section.hidden = section.id !== activeSection;
+  });
+
+  buttons.forEach((button) => {
+    button.addEventListener("click", () => {
+      sections.forEach((section) => {
+        section.hidden = true;
+      });
+
+      const section = document.getElementById(button.dataset.section);
+      section.hidden = false;
+    });
+  });
+
+  const showBookFormButton = document.getElementById("show-book-form");
+  const bookForm = document.getElementById("book-form");
+
+  showBookFormButton.addEventListener("click", () => {
+    const isOpening = bookForm.hidden;
+
+    bookForm.hidden = !bookForm.hidden;
+
+    if (isOpening) {
+      bookImport.hidden = true;
+      showBookImportButton.textContent = "Import knih";
+    }
+
+    if (bookForm.hidden) {
+      showBookFormButton.textContent = "Přidat knihu";
+    } else {
+      showBookFormButton.textContent = " ^^^^^ ";
+    }
+  });
+
+
+  const showBookImportButton = document.getElementById("show-book-import");
+  const bookImport = document.getElementById("book-import");
+
+  showBookImportButton.addEventListener("click", () => {
+    const isOpening = bookImport.hidden;
+
+    bookImport.hidden = !bookImport.hidden;
+
+    if (isOpening) {
+      bookForm.hidden = true;
+      showBookFormButton.textContent = "Přidat knihu";
+    }
+
+    if (bookImport.hidden) {
+      showBookImportButton.textContent = "Import knih";
+    } else {
+      showBookImportButton.textContent = " ^^^^^ ";
+    }
+  });
+
+  const showMemberFormButton = document.getElementById("show-member-form");
+  const memberForm = document.getElementById("member-form");
+
+  showMemberFormButton.addEventListener("click", () => {
+    memberForm.hidden = !memberForm.hidden;
+
+    if (memberForm.hidden) {
+      showMemberFormButton.textContent = "Přidat člena";
+    } else {
+      showMemberFormButton.textContent = " ^^^^^ ";
+    }
+  });
+
+  const chooseBookFileButton = document.getElementById("choose-book-file");
+  const bookFile = document.getElementById("book-file");
+
+  chooseBookFileButton.addEventListener("click", () => {
+    bookFile.click();
+  });
+
+  bookFile.addEventListener("change", () => {
+    bookFile.form.submit();
+  });
+
+  const bookActionButtons = document.querySelectorAll("[data-action='edit-book']");
+
+  bookActionButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      const bookId = button.dataset.bookId;
+      const editSection = document.getElementById(`edit-book-${bookId}`);
+
+      const isOpening = editSection.hidden;
+
+      document.querySelectorAll("[id^='edit-book-']").forEach((section) => {
+        section.hidden = true;
+      });
+
+      document.querySelectorAll("[data-action='edit-book']").forEach((button) => {
+        button.textContent = "Upravit";
+      });
+
+      if (isOpening) {
+        editSection.hidden = false;
+        button.textContent = " ^^^^^ ";
+      }
+    });
+  });
+
+  const memberActionButtons = document.querySelectorAll("[data-action='edit-member']");
+
+  memberActionButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      const memberId = button.dataset.memberId;
+      const editSection = document.getElementById(`edit-member-${memberId}`);
+
+      const isOpening = editSection.hidden;
+
+      document.querySelectorAll("[id^='edit-member-']").forEach((section) => {
+        section.hidden = true;
+      });
+
+      document.querySelectorAll("[data-action='edit-member']").forEach((button) => {
+        button.textContent = "Upravit";
+      });
+
+      if (isOpening) {
+        editSection.hidden = false;
+        button.textContent = " ^^^^^ ";
+      }
+    });
+  });
+</script>

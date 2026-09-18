@@ -1,0 +1,35 @@
+<h1>Historie</h1>
+
+<div class="history-button-container">
+  <%= link_to "Exportovat CSV", "/history/export", class: "history-button" %>
+</div>
+
+<table>
+  <thead>
+    <tr>
+      <th>Kniha</th>
+      <th>Člen</th>
+      <th>Akce</th>
+      <th>Datum</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @history.each do |borrowing| %>
+      <tr>
+        <td>
+          <%= borrowing[:book_title] %>
+        </td>
+        <td>
+          <%= borrowing[:member_name] %>
+        </td>
+        <td>
+          <%= borrowing[:action] %>
+        </td>
+        <td>
+          <%= borrowing[:created_at] %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

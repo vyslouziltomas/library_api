@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Knihovna</title>
+    <%= csrf_meta_tags %>
+    <link rel="stylesheet" href="/application.css">
+  </head>
+
+  <body>
+    <nav>
+      <%= link_to "Knihy", "/library" %>
+      <%= link_to "Členové", "/members" %>
+      <%= link_to "Historie", "/history" %>
+      <%= link_to "Administrace", "/admin" %>
+    </nav>
+
+    <main>
+      <%= yield %>
+    </main>
+  </body>
+</html>

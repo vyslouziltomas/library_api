@@ -1,0 +1,54 @@
+<h1>Knihy</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Titul</th>
+      <th>Autor</th>
+      <th>Rok</th>
+      <th>ISBN</th>
+      <th>Stav</th>
+      <th>Člen</th>
+      <th>Akce</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @books.each do |book| %>
+      <tr>
+        <td><%= book.title %></td>
+        <td><%= book.author %></td>
+        <td><%= book.year %></td>
+        <td><%= book.isbn %></td>
+
+        <% if book.member %>
+          <td>Vypůjčená</td>
+          <td><%= book.member.name %></td>
+          <td>
+            <%= button_to "Vrátit",
+                "/library/books/#{book.id}/return",
+                method: :patch %>
+          </td>
+        <% else %>
+          <td>Dostupná</td>
+
+          <td>
+            <%= select_tag :member_id,
+                options_from_collection_for_select(@members, :id, :name),
+                prompt: "Vyberte člena",
+                form: "borrow-book-#{book.id}" %>
+          </td>
+
+          <td>
+            <%= submit_tag "Půjčit", form: "borrow-book-#{book.id}" %>
+          </td>
+
+          <%= form_with url: "/library/books/#{book.id}/borrow",
+              method: :patch,
+              id: "borrow-book-#{book.id}" do %>
+          <% end %>
+        <% end %>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

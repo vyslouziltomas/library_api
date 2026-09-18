@@ -1,0 +1,31 @@
+<h1>Členové</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Jméno</th>
+      <th>E-mail</th>
+      <th>Telefon</th>
+      <th>Aktuálně půjčených titulů</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @members.each do |member| %>
+      <tr>
+        <td>
+          <%= member.name %>
+        </td>
+        <td>
+          <%= member.email %>
+        </td>
+        <td>
+          <%= member.phone %>
+        </td>
+        <td>
+          <%= member.books.count %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
