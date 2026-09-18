@@ -1,4 +1,6 @@
 Rails.application.routes.draw do
+  root "library#index"
+
   get "admin/index"
   get "history/index"
 
