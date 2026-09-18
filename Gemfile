@@ -7,7 +7,7 @@ gem "pg"
 # Fix the windows launch
 gem "fiddle"
 # Fix json POST method
-gem "json", "2.21.2"
+gem "json", "3.0.2"
 # import csv parser
 gem "csv"
 # Use the Puma web server [https://github.com/puma/puma]
