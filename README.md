@@ -123,4 +123,13 @@ The project currently contains 33 tests and 72 assertions.
 
 ## Deployment
 
-The application is prepared for deployment using PostgreSQL.
+The application is deployed to Render and runs in a production environment with PostgreSQL.
+
+The deployed application provides both the REST API and the web interface.
+
+Live application:
+Library API – deployed on Render: https://library-api-r87a.onrender.com/library
+
+The production database is populated with sample members and books, including borrowing history data.
+
+The application is configured to use environment variables for production configuration and database connection settings.
